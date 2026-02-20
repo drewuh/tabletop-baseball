@@ -1,4 +1,4 @@
-import { RollResult } from '../../types/game';
+import type { RollResult } from '../../types/game';
 
 interface DiceDisplayProps {
   rollResult: RollResult | null;

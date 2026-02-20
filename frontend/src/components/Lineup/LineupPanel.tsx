@@ -1,5 +1,5 @@
-import { Player } from '../../types/player';
-import { TeamInfo } from '../../types/game';
+import type { Player } from '../../types/player';
+import type { TeamInfo } from '../../types/game';
 import { LineupRow } from './LineupRow';
 
 interface LineupPanelProps {

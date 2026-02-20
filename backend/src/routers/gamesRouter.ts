@@ -187,6 +187,11 @@ gamesRouter.post('/:id/atbat', (req: Request, res: Response) => {
 
   // Half-inning over
   if (newOuts >= 3) {
+    // Guarantee a row exists for this half-inning even if no runs scored and no hits occurred.
+    // Without this, a 3-up 3-down half-inning has no inning_scores row, and the scoreboard
+    // cannot distinguish "not yet played" (null) from "played, zero runs" (0).
+    upsertInningScore(game.id, game.current_inning, isTop, 0, 0);
+
     newOuts = 0;
     newRunners = { first: false, second: false, third: false };
 

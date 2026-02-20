@@ -1,5 +1,5 @@
-import { Player } from './player';
-import { Team } from './team';
+import type { Player } from './player';
+import type { Team } from './team';
 
 export interface TeamInfo extends Team {
   currentPitcher: Player;

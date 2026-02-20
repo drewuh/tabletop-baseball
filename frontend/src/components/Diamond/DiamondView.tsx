@@ -1,4 +1,4 @@
-import { BaseRunners } from '../../types/game';
+import type { BaseRunners } from '../../types/game';
 
 interface DiamondViewProps {
   baseRunners: BaseRunners;

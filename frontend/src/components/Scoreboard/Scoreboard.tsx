@@ -1,5 +1,5 @@
-import { InningScore, ScoreTotals } from '../../types/game';
-import { Team } from '../../types/team';
+import type { InningScore, ScoreTotals } from '../../types/game';
+import type { Team } from '../../types/team';
 
 interface ScoreboardProps {
   homeTeam: Team;

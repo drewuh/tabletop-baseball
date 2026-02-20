@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Team } from '../types/team';
+import type { Team } from '../types/team';
 
 interface UseTeamSelectReturn {
   teams: Team[];

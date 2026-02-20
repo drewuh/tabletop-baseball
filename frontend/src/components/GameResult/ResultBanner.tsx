@@ -1,4 +1,4 @@
-import { TeamInfo } from '../../types/game';
+import type { TeamInfo } from '../../types/game';
 
 interface ResultBannerProps {
   playerTeam: TeamInfo;

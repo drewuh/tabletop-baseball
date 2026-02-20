@@ -1,5 +1,5 @@
-import { Player } from '../../types/player';
-import { RollResult, PlayResult } from '../../types/game';
+import type { Player } from '../../types/player';
+import type { RollResult, PlayResult } from '../../types/game';
 import { DiceDisplay } from './DiceDisplay';
 import { RollDiceButton } from './RollDiceButton';
 import { PlayResultDisplay } from './PlayResultDisplay';

@@ -1,4 +1,4 @@
-import { Team } from '../../types/team';
+import type { Team } from '../../types/team';
 import { TeamCard } from './TeamCard';
 
 interface TeamGridProps {

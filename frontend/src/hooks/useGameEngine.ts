@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { GameState, AtBatResult, RollResult, PlayResult } from '../types/game';
+import type { GameState, AtBatResult, RollResult, PlayResult } from '../types/game';
 
 interface UseGameEngineReturn {
   gameState: GameState | null;

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { GameState, InningScore } from '../types/game';
+import type { GameState, InningScore } from '../types/game';
 import { ResultBanner } from '../components/GameResult/ResultBanner';
 import { Scoreboard } from '../components/Scoreboard/Scoreboard';
 

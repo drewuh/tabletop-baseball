@@ -1,4 +1,4 @@
-import { PlayResult, PlayResultType } from '../../types/game';
+import type { PlayResult, PlayResultType } from '../../types/game';
 
 interface PlayResultDisplayProps {
   result: PlayResult | null;

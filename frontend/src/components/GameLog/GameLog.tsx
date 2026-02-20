@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { GameLogEntry } from '../../types/game';
+import type { GameLogEntry } from '../../types/game';
 
 interface GameLogProps {
   entries: GameLogEntry[];

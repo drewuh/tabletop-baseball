@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { GameLogEntry } from '../types/game';
+import type { GameLogEntry } from '../types/game';
 
 interface UseGameLogReturn {
   entries: GameLogEntry[];
