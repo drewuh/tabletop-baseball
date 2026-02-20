@@ -5,6 +5,7 @@ import path from 'path';
 import { initSchema } from './db/schema';
 import { teamsRouter } from './routers/teamsRouter';
 import { gamesRouter } from './routers/gamesRouter';
+import { playersRouter } from './routers/playersRouter';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -19,6 +20,7 @@ initSchema();
 
 app.use('/api/teams', teamsRouter);
 app.use('/api/games', gamesRouter);
+app.use('/api/players', playersRouter);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });

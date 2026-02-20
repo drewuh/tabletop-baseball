@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameEngine } from '../hooks/useGameEngine';
+import { useTeamTheme } from '../hooks/useTeamTheme';
 import { Scoreboard } from '../components/Scoreboard/Scoreboard';
 import { DiamondView } from '../components/Diamond/DiamondView';
 import { AtBatPanel } from '../components/AtBat/AtBatPanel';
@@ -12,6 +13,12 @@ export default function GamePage() {
 
   const { gameState, rollResult, playResult, isLoading, isRolling, error, rollDice } =
     useGameEngine(gameId ?? '');
+
+  // Always call hooks before any early returns
+  const { homeTheme, awayTheme } = useTeamTheme(
+    gameState?.homeTeam.id ?? '',
+    gameState?.awayTeam.id ?? '',
+  );
 
   if (isLoading) {
     return (
@@ -41,15 +48,19 @@ export default function GamePage() {
   // Player is home team — player turn is bottom of inning
   const isPlayerTurn = !isTopInning;
 
-  const halfLabel = isTopInning ? 'Top' : 'Bot';
-  const inningLabel = `${halfLabel} ${gameState.currentInning}`;
+  // When away is batting (top inning), use away accent color for diamond runners
+  const diamondAccentHex = isTopInning ? awayTheme.accentHex : homeTheme.accentHex;
+
+  // Batter team theme = away when top inning, home when bottom
+  const batterTheme = isTopInning ? awayTheme : homeTheme;
+  // Pitcher team theme = home when top inning, away when bottom
+  const pitcherTheme = isTopInning ? homeTheme : awayTheme;
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col text-zinc-100">
       {/* Scoreboard */}
-      <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-mono text-sm text-zinc-400">{inningLabel}</span>
+      <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-3">
+        <div className="flex items-center justify-end mb-2">
           {gameState.phase === 'complete' && (
             <button
               onClick={() => navigate(`/game/${gameId}/result`)}
@@ -65,6 +76,9 @@ export default function GamePage() {
           innings={gameState.innings}
           currentInning={gameState.currentInning}
           isTopInning={isTopInning}
+          homeTheme={homeTheme}
+          awayTheme={awayTheme}
+          phase={gameState.phase}
         />
       </div>
 
@@ -82,7 +96,11 @@ export default function GamePage() {
 
         {/* Center: diamond + at-bat + log */}
         <div className="flex-1 flex flex-col gap-4">
-          <DiamondView baseRunners={gameState.baseRunners} outs={gameState.outs} />
+          <DiamondView
+            baseRunners={gameState.baseRunners}
+            outs={gameState.outs}
+            accentHex={diamondAccentHex}
+          />
           {activeBatter && activePitcher && (
             <AtBatPanel
               batter={activeBatter}
@@ -92,6 +110,9 @@ export default function GamePage() {
               onRollDice={rollDice}
               isRolling={isRolling}
               isPlayerTurn={isPlayerTurn && gameState.phase === 'active'}
+              batterTheme={batterTheme}
+              pitcherTheme={pitcherTheme}
+              accentHex={batterTheme.accentHex}
             />
           )}
           <GameLog entries={gameState.log} />

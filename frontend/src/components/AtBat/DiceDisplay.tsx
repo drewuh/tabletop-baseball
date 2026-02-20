@@ -1,31 +1,48 @@
+import '../../styles/dice.css';
 import type { RollResult } from '../../types/game';
+import { Die } from './Die';
 
-interface DiceDisplayProps {
+interface DiceRollerProps {
   rollResult: RollResult | null;
   isRolling: boolean;
+  accentHex?: string;
 }
 
-function Die({ value, label, isRolling }: { value: number | null; label: string; isRolling: boolean }) {
+export function DiceRoller({ rollResult, isRolling, accentHex }: DiceRollerProps) {
+  const cardLabel = rollResult?.usedBatterCard ? 'BATTER CARD' : 'PITCHER CARD';
+
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div
-        className={`w-12 h-12 bg-zinc-100 text-zinc-900 rounded flex items-center justify-center font-mono font-bold text-lg ${
-          isRolling ? 'animate-bounce' : ''
-        }`}
-      >
-        {isRolling ? '?' : value ?? '-'}
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex gap-4 justify-center">
+        <Die
+          sides={20}
+          value={rollResult?.d20 ?? null}
+          isRolling={isRolling}
+          accentHex={accentHex}
+        />
+        <Die
+          sides={6}
+          value={rollResult?.d6a ?? null}
+          isRolling={isRolling}
+          accentHex={accentHex}
+        />
+        <Die
+          sides={6}
+          value={rollResult?.d6b ?? null}
+          isRolling={isRolling}
+          accentHex={accentHex}
+        />
       </div>
-      <span className="text-xs text-zinc-400 font-mono">{label}</span>
+      {rollResult && !isRolling && (
+        <span className="text-xs text-zinc-400 font-mono">
+          {cardLabel}
+        </span>
+      )}
     </div>
   );
 }
 
-export function DiceDisplay({ rollResult, isRolling }: DiceDisplayProps) {
-  return (
-    <div className="flex gap-4 justify-center">
-      <Die value={rollResult?.d20 ?? null} label="d20" isRolling={isRolling} />
-      <Die value={rollResult?.d6a ?? null} label="d6" isRolling={isRolling} />
-      <Die value={rollResult?.d6b ?? null} label="d6" isRolling={isRolling} />
-    </div>
-  );
+/** @deprecated Use DiceRoller instead */
+export function DiceDisplay({ rollResult, isRolling, accentHex }: DiceRollerProps) {
+  return <DiceRoller rollResult={rollResult} isRolling={isRolling} accentHex={accentHex} />;
 }

@@ -47,3 +47,42 @@ export function getStartingPitcher(teamId: string): Player | undefined {
 export function getPlayerById(id: string): Player | undefined {
   return db.prepare('SELECT * FROM players WHERE id = ?').get(id) as Player | undefined;
 }
+
+export interface CardRow {
+  d6_sum: number;
+  result: string;
+}
+
+export interface PlayerCard {
+  playerId: string;
+  playerName: string;
+  position: string;
+  teamAbbreviation: string;
+  isPitcher: boolean;
+  rows: CardRow[];
+}
+
+export function getPlayerCard(playerId: string): PlayerCard | undefined {
+  const player = db.prepare(
+    `SELECT p.id, p.name, p.position, p.is_pitcher, t.abbreviation
+     FROM players p
+     JOIN teams t ON t.id = p.team_id
+     WHERE p.id = ?`
+  ).get(playerId) as { id: string; name: string; position: string; is_pitcher: number; abbreviation: string } | undefined;
+
+  if (!player) return undefined;
+
+  const table = player.is_pitcher ? 'pitcher_cards' : 'batter_cards';
+  const rows = db.prepare(
+    `SELECT d6_sum, result FROM ${table} WHERE player_id = ? ORDER BY d6_sum ASC`
+  ).all(playerId) as CardRow[];
+
+  return {
+    playerId: player.id,
+    playerName: player.name,
+    position: player.position,
+    teamAbbreviation: player.abbreviation,
+    isPitcher: player.is_pitcher === 1,
+    rows,
+  };
+}
