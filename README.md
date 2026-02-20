@@ -1,2 +1,2 @@
 # tabletop-baseball
-Baseball simulation similar to the Strat-o-matic game
+Baseball simulation based to the Strat-o-matic game
