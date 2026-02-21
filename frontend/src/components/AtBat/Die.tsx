@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import '../../styles/dice.css';
 
 interface DieProps {
@@ -7,24 +9,54 @@ interface DieProps {
   accentHex?: string;
 }
 
+const VARIANTS = ['a', 'b', 'c'] as const;
+type Variant = (typeof VARIANTS)[number];
+
 export function Die({ sides, value, isRolling, accentHex }: DieProps) {
-  const sizeClass = sides === 20 ? 'w-16 h-16' : 'w-14 h-14';
   const label = sides === 20 ? 'D20' : 'D6';
+  const [variant, setVariant] = useState<Variant>('a');
+  const [rollDuration, setRollDuration] = useState(1000);
 
-  const borderStyle =
-    !isRolling && value !== null && accentHex
-      ? { borderColor: accentHex }
-      : undefined;
+  useEffect(() => {
+    if (isRolling) {
+      setVariant(VARIANTS[Math.floor(Math.random() * VARIANTS.length)]);
+      setRollDuration(900 + Math.floor(Math.random() * 200));
+    }
+  }, [isRolling]);
 
-  const animationClass = isRolling ? 'dice-rolling' : value !== null ? 'dice-settle' : '';
+  const isSettled = !isRolling && value !== null;
+  const animationClass = isRolling
+    ? `dice-roll-${variant}`
+    : isSettled
+      ? 'dice-settle'
+      : '';
+
+  const rollVars = { '--roll-duration': `${rollDuration}ms` } as CSSProperties;
+  const frontStyle: CSSProperties = isSettled && accentHex ? { borderColor: accentHex } : {};
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div
-        className={`${sizeClass} bg-zinc-800 border-2 border-zinc-600 rounded-lg flex items-center justify-center font-mono font-bold text-zinc-100 text-xl ${animationClass}`}
-        style={borderStyle}
-      >
-        {isRolling ? '?' : (value ?? '—')}
+      <div className="dice-scene">
+        <div className={`dice-cube ${animationClass}`} style={rollVars}>
+          <div className="dice-face dice-face--front" style={frontStyle}>
+            <span className="dice-pip">{isRolling ? '?' : (value ?? '—')}</span>
+          </div>
+          <div className="dice-face dice-face--back">
+            <span className="dice-pip">{isRolling ? '?' : ''}</span>
+          </div>
+          <div className="dice-face dice-face--right">
+            <span className="dice-pip">{isRolling ? '?' : ''}</span>
+          </div>
+          <div className="dice-face dice-face--left">
+            <span className="dice-pip">{isRolling ? '?' : ''}</span>
+          </div>
+          <div className="dice-face dice-face--top">
+            <span className="dice-pip">{isRolling ? '?' : ''}</span>
+          </div>
+          <div className="dice-face dice-face--bottom">
+            <span className="dice-pip">{isRolling ? '?' : ''}</span>
+          </div>
+        </div>
       </div>
       <span className="text-xs text-zinc-500 uppercase tracking-widest font-mono">{label}</span>
     </div>

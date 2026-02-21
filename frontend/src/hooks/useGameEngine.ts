@@ -45,7 +45,7 @@ export function useGameEngine(gameId: string): UseGameEngineReturn {
 
     try {
       // Brief delay so the "rolling" state is visible
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const res = await fetch(`/api/games/${gameId}/atbat`, { method: 'POST' });
       const data = (await res.json()) as AtBatResult;
