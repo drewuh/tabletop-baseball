@@ -142,7 +142,7 @@ Before writing any code:
 ## Session Status
 
 **Current branch:** `feature/phase-2-visual-polish`
-**Last updated:** 2026-02-22 (evening)
+**Last updated:** 2026-02-22 (night)
 
 ### Phase 2 — Visual Polish
 
@@ -156,6 +156,10 @@ Before writing any code:
 - **TeamSelectPage** — `TeamCard` shows per-team color identity (badge, border tint, selected ring); `ConfirmTeamButton` adopts selected team's `primaryHex`; page title polished with eyebrow label + separator
 
 - **GameResultPage** — `ResultBanner` uses `playerTheme.primaryHex` for win (solid) and loss (60% overlay on `bg-red-950`); `Scoreboard` receives `homeTheme`/`awayTheme` and `phase="complete"` activating the FINAL label
+- **6×6 D6 matrix** — at-bat resolution migrated from 1D sum (11 outcomes) to true col×row grid (36 cells/card); `PlayerCard` redesigned as a 6×6 grid; stale-rollResult highlight bug fixed in `AtBatPanel`
 
-#### Remaining
-- **Theme coverage** — only 4 entries in `teamThemes.ts`; verify IDs match DB team IDs exactly
+#### Remaining (Phase 2)
+- **Theme coverage** — only 4 entries in `teamThemes.ts`; verify IDs match DB team IDs exactly (quick check, not a full feature)
+
+#### Phase 2 gate
+Do not merge to `main` or start Phase 3 until theme coverage is verified.
