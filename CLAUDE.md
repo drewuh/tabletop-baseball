@@ -153,8 +153,8 @@ Before writing any code:
 - **Stadium scoreboard** — `Scoreboard.tsx`: inning-by-inning grid, R/H/E totals, LIVE pulse indicator, FINAL state, team accent colors per row
 - **Baseball diamond** — `DiamondView.tsx`: occupied bases pulse in team accent color, outs indicator
 - **Team color theming** — `teamThemes.ts` + `useTeamTheme` hook, wired throughout `GamePage` (scoreboard, diamond, player cards, dice)
+- **TeamSelectPage** — `TeamCard` shows per-team color identity (badge, border tint, selected ring); `ConfirmTeamButton` adopts selected team's `primaryHex`; page title polished with eyebrow label + separator
 
 #### Remaining
-- **TeamSelectPage** — `TeamCard` uses hardcoded amber; no per-team color or visual identity on the selection screen
 - **GameResultPage** — `ResultBanner` uses generic green/red backgrounds; team themes are not passed to `Scoreboard` on the result screen
 - **Theme coverage** — only 4 entries in `teamThemes.ts`; verify IDs match DB team IDs exactly
