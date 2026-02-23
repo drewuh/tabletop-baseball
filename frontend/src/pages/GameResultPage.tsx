@@ -3,11 +3,18 @@ import { useEffect, useState } from 'react';
 import type { GameState, InningScore } from '../types/game';
 import { ResultBanner } from '../components/GameResult/ResultBanner';
 import { Scoreboard } from '../components/Scoreboard/Scoreboard';
+import { useTeamTheme } from '../hooks/useTeamTheme';
 
 export default function GameResultPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const [gameState, setGameState] = useState<GameState | null>(null);
+
+  // Always call hooks before any early returns
+  const { homeTheme, awayTheme } = useTeamTheme(
+    gameState?.homeTeam.id ?? '',
+    gameState?.awayTeam.id ?? '',
+  );
 
   useEffect(() => {
     fetch(`/api/games/${gameId}/state`)
@@ -40,6 +47,7 @@ export default function GameResultPage() {
           playerRuns={playerRuns}
           cpuRuns={cpuRuns}
           playerWon={playerWon}
+          playerTheme={homeTheme}
         />
         <Scoreboard
           homeTeam={gameState.homeTeam}
@@ -47,6 +55,9 @@ export default function GameResultPage() {
           innings={gameState.innings}
           currentInning={gameState.currentInning}
           isTopInning={gameState.isTopInning}
+          homeTheme={homeTheme}
+          awayTheme={awayTheme}
+          phase="complete"
         />
         <div className="flex gap-4 justify-center">
           <button
