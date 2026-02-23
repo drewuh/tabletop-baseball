@@ -136,3 +136,51 @@ Before writing any code:
 2. Invoke the `project-manager` agent to produce a phased feature roadmap
 3. Invoke the `ux-designer` agent to produce a component map and visual spec
 4. Confirm both artifacts with me before touching any code
+
+---
+
+## Session Status
+
+**Current branch:** `feature/phase-2-visual-polish`
+**Last updated:** 2026-02-22 (night)
+
+### Phase 2 — Visual Polish
+
+#### Done
+- **Animated 3D dice** — `Die.tsx` + `dice.css`: 3 roll variants (A/B/C), randomized duration, spring-settle bounce, team accent border on landed face
+- **D6/D20 cube unification** — both dice use the identical `.dice-cube` CSS shape; D20 is identified by its label only
+- **Player cards at at-bat** — `PlayerCard.tsx`: pitcher and batter cards side-by-side, active row highlighted, team-color header tint
+- **Stadium scoreboard** — `Scoreboard.tsx`: inning-by-inning grid, R/H/E totals, LIVE pulse indicator, FINAL state, team accent colors per row
+- **Baseball diamond** — `DiamondView.tsx`: occupied bases pulse in team accent color, outs indicator
+- **Team color theming** — `teamThemes.ts` + `useTeamTheme` hook, wired throughout `GamePage` (scoreboard, diamond, player cards, dice)
+- **TeamSelectPage** — `TeamCard` shows per-team color identity (badge, border tint, selected ring); `ConfirmTeamButton` adopts selected team's `primaryHex`; page title polished with eyebrow label + separator
+
+- **GameResultPage** — `ResultBanner` uses `playerTheme.primaryHex` for win (solid) and loss (60% overlay on `bg-red-950`); `Scoreboard` receives `homeTheme`/`awayTheme` and `phase="complete"` activating the FINAL label
+- **6×6 D6 matrix** — at-bat resolution migrated from 1D sum (11 outcomes) to true col×row grid (36 cells/card); `PlayerCard` redesigned as a 6×6 grid; stale-rollResult highlight bug fixed in `AtBatPanel`
+
+#### Phase 2 gate — CLEARED
+Theme coverage verified: all 4 `teamThemes.ts` keys match DB team IDs exactly.
+
+---
+
+### Phase 3 — Memory (Persistent Stats & Records)
+
+#### Done
+- **player_stats + team_season_record tables** — schema updated; stats written per at-bat; games_played and W-L updated at game completion
+- **statsRouter** — `GET /api/stats/batting`, `GET /api/stats/pitching` (LEFT JOIN so all players appear with 0s)
+- **Game history endpoint** — `GET /api/games` returns completed games with final scores
+- **`GET /api/teams`** — now includes `wins` and `losses` per team
+- **Clean slate** — Phase 1/2 test game data wiped before Phase 3 landed
+- **NavBar** — persistent top nav: Home / Stats / History, active-route highlight
+- **/stats page** — `StatsTabBar` + `StatsTable`: sortable batting and pitching leaders; AVG shows `—` for 0 AB; IP displayed as X.Y
+- **/history page** — `GameHistoryList` + `GameHistoryRow`: scores, dates, winner highlighted green, links to result
+- **TeamSelectPage two-step flow** — step 1: pick your team (click advances); step 2: pick CPU opponent; Back clears both
+- **TeamCard W-L record** — wins–losses shown beneath team name
+- **PlayByPlayPanel** — live auto-scroll in `GamePage` (xl: third column, smaller: below AtBat); static full log on `GameResultPage`
+- **GameResultPage** — "Game History" button replaces generic "Home"
+
+#### Phase 3 gate
+- [ ] Play a complete game and verify player_stats rows populated correctly
+- [ ] Verify /stats page shows correct BA math after game
+- [ ] Verify /history lists the game and links to its result page
+- [ ] `npm run build` passes in both backend/ and frontend/ with zero errors
