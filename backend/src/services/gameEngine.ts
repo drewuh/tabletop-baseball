@@ -15,7 +15,6 @@ export interface RollResult {
   d20: number;
   d6a: number;
   d6b: number;
-  d6Sum: number;
   usedBatterCard: boolean;
 }
 
@@ -55,17 +54,14 @@ function rollD6(): number {
   return Math.floor(Math.random() * 6) + 1;
 }
 
-function lookupResult(playerId: string, d6Sum: number, isBatterCard: boolean): PlayResultType {
+function lookupResult(playerId: string, col: number, row: number, isBatterCard: boolean): PlayResultType {
   const table = isBatterCard ? 'batter_cards' : 'pitcher_cards';
-  const row = db.prepare(
-    `SELECT result FROM ${table} WHERE player_id = ? AND d6_sum = ?`
-  ).get(playerId, d6Sum) as { result: PlayResultType } | undefined;
+  const result = db.prepare(
+    `SELECT result FROM ${table} WHERE player_id = ? AND col = ? AND row = ?`
+  ).get(playerId, col, row) as { result: PlayResultType } | undefined;
 
-  if (!row) {
-    // Fallback if card not found
-    return 'GROUND_OUT';
-  }
-  return row.result;
+  if (!result) return 'GROUND_OUT';
+  return result.result;
 }
 
 function buildDescription(
@@ -197,15 +193,12 @@ export function resolveAtBat(
   pitcherName: string
 ): AtBatOutcome {
   const d20 = rollD20();
-  const d6a = rollD6();
-  const d6b = rollD6();
-  const d6Sum = d6a + d6b;
+  const d6a = rollD6(); // col
+  const d6b = rollD6(); // row
   const usedBatterCard = d20 <= 10;
-
   const playerId = usedBatterCard ? context.batterId : context.pitcherId;
-  const resultType = lookupResult(playerId, d6Sum, usedBatterCard);
-
-  const roll: RollResult = { d20, d6a, d6b, d6Sum, usedBatterCard };
+  const resultType = lookupResult(playerId, d6a, d6b, usedBatterCard);
+  const roll: RollResult = { d20, d6a, d6b, usedBatterCard };
 
   const isHit = ['SINGLE', 'DOUBLE', 'TRIPLE', 'HOME_RUN'].includes(resultType);
 

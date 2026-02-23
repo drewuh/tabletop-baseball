@@ -9,7 +9,6 @@ export interface RollResult {
   d20: number;
   d6a: number;
   d6b: number;
-  d6Sum: number;
   usedBatterCard: boolean;
 }
 

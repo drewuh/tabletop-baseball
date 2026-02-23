@@ -4,5 +4,5 @@ export interface PlayerCardData {
   position: string;
   teamAbbreviation: string;
   isPitcher: boolean;
-  rows: Array<{ d6_sum: number; result: string }>;
+  rows: Array<{ col: number; row: number; result: string }>;
 }

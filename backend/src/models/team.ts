@@ -49,7 +49,8 @@ export function getPlayerById(id: string): Player | undefined {
 }
 
 export interface CardRow {
-  d6_sum: number;
+  col: number;
+  row: number;
   result: string;
 }
 
@@ -74,7 +75,7 @@ export function getPlayerCard(playerId: string): PlayerCard | undefined {
 
   const table = player.is_pitcher ? 'pitcher_cards' : 'batter_cards';
   const rows = db.prepare(
-    `SELECT d6_sum, result FROM ${table} WHERE player_id = ? ORDER BY d6_sum ASC`
+    `SELECT col, row, result FROM ${table} WHERE player_id = ? ORDER BY col ASC, row ASC`
   ).all(playerId) as CardRow[];
 
   return {

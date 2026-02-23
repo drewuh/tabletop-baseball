@@ -22,20 +22,18 @@ export function initSchema(): void {
 
     CREATE TABLE IF NOT EXISTS batter_cards (
       player_id TEXT NOT NULL REFERENCES players(id),
-      d20_min INTEGER NOT NULL,
-      d20_max INTEGER NOT NULL,
-      d6_sum INTEGER NOT NULL,
+      col INTEGER NOT NULL,
+      row INTEGER NOT NULL,
       result TEXT NOT NULL,
-      PRIMARY KEY (player_id, d20_min, d6_sum)
+      PRIMARY KEY (player_id, col, row)
     );
 
     CREATE TABLE IF NOT EXISTS pitcher_cards (
       player_id TEXT NOT NULL REFERENCES players(id),
-      d20_min INTEGER NOT NULL,
-      d20_max INTEGER NOT NULL,
-      d6_sum INTEGER NOT NULL,
+      col INTEGER NOT NULL,
+      row INTEGER NOT NULL,
       result TEXT NOT NULL,
-      PRIMARY KEY (player_id, d20_min, d6_sum)
+      PRIMARY KEY (player_id, col, row)
     );
 
     CREATE TABLE IF NOT EXISTS games (

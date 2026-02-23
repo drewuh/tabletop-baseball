@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { Player } from '../../types/player';
 import type { RollResult, PlayResult } from '../../types/game';
 import type { TeamTheme } from '../../types/theme';
@@ -39,7 +40,21 @@ export function AtBatPanel({
     pitcherId: pitcher.id,
   });
 
-  const activeRow = rollResult?.d6Sum ?? null;
+  // Track active cell in local state so it clears when the batter changes.
+  // Without this, the previous batter's roll is highlighted on the new batter's card.
+  const [activeCol, setActiveCol] = useState<number | null>(null);
+  const [activeRow, setActiveRow] = useState<number | null>(null);
+
+  useEffect(() => {
+    setActiveCol(rollResult?.d6a ?? null);
+    setActiveRow(rollResult?.d6b ?? null);
+  }, [rollResult]);
+
+  useEffect(() => {
+    setActiveCol(null);
+    setActiveRow(null);
+  }, [batter.id]);
+
   const usedBatterCard = rollResult?.usedBatterCard ?? false;
 
   return (
@@ -59,12 +74,14 @@ export function AtBatPanel({
         <div className="flex gap-3 justify-center flex-wrap">
           <PlayerCard
             card={batterCard}
+            activeCol={activeCol}
             activeRow={activeRow}
             isActiveDeck={usedBatterCard}
             theme={batterTheme}
           />
           <PlayerCard
             card={pitcherCard}
+            activeCol={activeCol}
             activeRow={activeRow}
             isActiveDeck={!usedBatterCard && rollResult !== null}
             theme={pitcherTheme}

@@ -3,6 +3,7 @@ import type { TeamTheme } from '../../types/theme';
 
 interface PlayerCardProps {
   card: PlayerCardData;
+  activeCol: number | null;
   activeRow: number | null;
   isActiveDeck: boolean;
   theme: TeamTheme;
@@ -14,7 +15,15 @@ function resultColor(result: string): string {
   return 'text-zinc-400';
 }
 
-export function PlayerCard({ card, activeRow, isActiveDeck, theme }: PlayerCardProps) {
+function abbrev(result: string): string {
+  const map: Record<string, string> = {
+    SINGLE: '1B', DOUBLE: '2B', TRIPLE: '3B', HOME_RUN: 'HR',
+    WALK: 'BB', STRIKEOUT: 'K', GROUND_OUT: 'GO', FLY_OUT: 'FO', LINE_OUT: 'LO',
+  };
+  return map[result] ?? result;
+}
+
+export function PlayerCard({ card, activeCol, activeRow, isActiveDeck, theme }: PlayerCardProps) {
   const borderColor = isActiveDeck ? theme.accentHex : '#3f3f46';
   const headerBg = theme.primaryHex + '33'; // 20% opacity tint
   const cardTypeLabel = card.isPitcher ? 'PITCHER CARD' : 'BATTER CARD';
@@ -35,28 +44,37 @@ export function PlayerCard({ card, activeRow, isActiveDeck, theme }: PlayerCardP
         </div>
       </div>
 
-      {/* Card rows table */}
-      <div className="px-0 py-1">
-        {card.rows.map(row => {
-          const isActive = row.d6_sum === activeRow && isActiveDeck;
-          return (
-            <div
-              key={row.d6_sum}
-              className={`flex px-3 py-0.5 text-xs font-mono transition-colors duration-150 ${
-                isActive
-                  ? 'bg-amber-400/20 border-l-2 border-amber-400'
-                  : 'border-l-2 border-transparent'
-              }`}
-            >
-              <span className={`w-8 shrink-0 ${isActive ? 'text-amber-300' : 'text-zinc-500'}`}>
-                {row.d6_sum}
-              </span>
-              <span className={isActive ? 'text-amber-300' : resultColor(row.result)}>
-                {row.result.replace(/_/g, ' ')}
-              </span>
-            </div>
-          );
-        })}
+      {/* 6×6 grid */}
+      <div className="px-2 py-1.5">
+        {/* Column header row */}
+        <div className="grid grid-cols-7 mb-0.5">
+          <div className="text-[10px] font-mono text-zinc-600" /> {/* empty corner */}
+          {[1,2,3,4,5,6].map(c => (
+            <div key={c} className="text-[10px] font-mono text-zinc-500 text-center">{c}</div>
+          ))}
+        </div>
+        {/* Data rows */}
+        {[1,2,3,4,5,6].map(rowNum => (
+          <div key={rowNum} className="grid grid-cols-7">
+            {/* Row label */}
+            <div className="text-[10px] font-mono text-zinc-500 flex items-center">{rowNum}</div>
+            {/* Cells */}
+            {[1,2,3,4,5,6].map(colNum => {
+              const cell = card.rows.find(r => r.col === colNum && r.row === rowNum);
+              const isActive = colNum === activeCol && rowNum === activeRow && isActiveDeck;
+              return (
+                <div
+                  key={colNum}
+                  className={`text-[10px] font-mono text-center py-0.5 rounded-sm ${
+                    isActive ? 'bg-amber-400/20 text-amber-300' : resultColor(cell?.result ?? '')
+                  }`}
+                >
+                  {abbrev(cell?.result ?? '')}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

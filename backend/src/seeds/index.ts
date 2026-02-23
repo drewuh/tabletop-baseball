@@ -18,13 +18,13 @@ function seed(): void {
   `);
 
   const insertBatterRow = db.prepare(`
-    INSERT OR REPLACE INTO batter_cards (player_id, d20_min, d20_max, d6_sum, result)
-    VALUES (@player_id, @d20_min, @d20_max, @d6_sum, @result)
+    INSERT OR REPLACE INTO batter_cards (player_id, col, row, result)
+    VALUES (@player_id, @col, @row, @result)
   `);
 
   const insertPitcherRow = db.prepare(`
-    INSERT OR REPLACE INTO pitcher_cards (player_id, d20_min, d20_max, d6_sum, result)
-    VALUES (@player_id, @d20_min, @d20_max, @d6_sum, @result)
+    INSERT OR REPLACE INTO pitcher_cards (player_id, col, row, result)
+    VALUES (@player_id, @col, @row, @result)
   `);
 
   const runAll = db.transaction(() => {
@@ -45,26 +45,14 @@ function seed(): void {
       if (!player.is_pitcher && player.batter_profile) {
         const rows = buildBatterCard(player.batter_profile);
         for (const row of rows) {
-          insertBatterRow.run({
-            player_id: player.id,
-            d20_min: 1,
-            d20_max: 10,
-            d6_sum: row.d6_sum,
-            result: row.result,
-          });
+          insertBatterRow.run({ player_id: player.id, col: row.col, row: row.row, result: row.result });
         }
       }
 
       if (player.is_pitcher && player.pitcher_profile) {
         const rows = buildPitcherCard(player.pitcher_profile);
         for (const row of rows) {
-          insertPitcherRow.run({
-            player_id: player.id,
-            d20_min: 11,
-            d20_max: 20,
-            d6_sum: row.d6_sum,
-            result: row.result,
-          });
+          insertPitcherRow.run({ player_id: player.id, col: row.col, row: row.row, result: row.result });
         }
       }
     }
