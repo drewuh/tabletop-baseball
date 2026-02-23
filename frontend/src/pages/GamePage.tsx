@@ -5,7 +5,7 @@ import { Scoreboard } from '../components/Scoreboard/Scoreboard';
 import { DiamondView } from '../components/Diamond/DiamondView';
 import { AtBatPanel } from '../components/AtBat/AtBatPanel';
 import { LineupPanel } from '../components/Lineup/LineupPanel';
-import { GameLog } from '../components/GameLog/GameLog';
+import { PlayByPlayPanel } from '../components/PlayByPlay/PlayByPlayPanel';
 
 export default function GamePage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -22,7 +22,7 @@ export default function GamePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+      <div className="flex-1 flex items-center justify-center text-zinc-400">
         Loading game…
       </div>
     );
@@ -30,7 +30,7 @@ export default function GamePage() {
 
   if (error || !gameState) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-red-400">
+      <div className="flex-1 flex items-center justify-center text-red-400">
         {error ?? 'Game not found.'}
       </div>
     );
@@ -57,7 +57,7 @@ export default function GamePage() {
   const pitcherTheme = isTopInning ? homeTheme : awayTheme;
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col text-zinc-100">
+    <div className="flex-1 flex flex-col text-zinc-100">
       {/* Scoreboard */}
       <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-3">
         <div className="flex items-center justify-end mb-2">
@@ -82,7 +82,7 @@ export default function GamePage() {
         />
       </div>
 
-      {/* Main layout: three columns */}
+      {/* Main layout */}
       <div className="flex flex-1 gap-4 px-4 py-4 min-h-0">
         {/* Away lineup */}
         <div className="w-48 shrink-0">
@@ -94,7 +94,7 @@ export default function GamePage() {
           />
         </div>
 
-        {/* Center: diamond + at-bat + log */}
+        {/* Center: diamond + at-bat */}
         <div className="flex-1 flex flex-col gap-4">
           <DiamondView
             baseRunners={gameState.baseRunners}
@@ -115,7 +115,15 @@ export default function GamePage() {
               accentHex={batterTheme.accentHex}
             />
           )}
-          <GameLog entries={gameState.log} />
+          {/* Play-by-play on smaller screens (below xl) */}
+          <div className="xl:hidden">
+            <PlayByPlayPanel entries={gameState.log} isLive />
+          </div>
+        </div>
+
+        {/* Play-by-play: third column on xl */}
+        <div className="hidden xl:flex w-72 shrink-0">
+          <PlayByPlayPanel entries={gameState.log} isLive />
         </div>
 
         {/* Home lineup */}

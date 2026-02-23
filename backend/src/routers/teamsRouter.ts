@@ -1,11 +1,18 @@
 import { Router, Request, Response } from 'express';
 import { getAllTeams, getTeamById, getRoster } from '../models/team';
+import { getAllTeamRecords } from '../models/stats';
 
 export const teamsRouter = Router();
 
 teamsRouter.get('/', (_req: Request, res: Response) => {
   const teams = getAllTeams();
-  res.json(teams);
+  const records = getAllTeamRecords();
+  const result = teams.map(team => ({
+    ...team,
+    wins:   records[team.id]?.wins   ?? 0,
+    losses: records[team.id]?.losses ?? 0,
+  }));
+  res.json(result);
 });
 
 teamsRouter.get('/:id', (req: Request, res: Response) => {

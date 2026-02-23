@@ -5,4 +5,6 @@ export interface Team {
   abbreviation: string;
   primary_color: string;
   secondary_color: string;
+  wins?: number;
+  losses?: number;
 }

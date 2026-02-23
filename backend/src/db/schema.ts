@@ -74,5 +74,27 @@ export function initSchema(): void {
       text TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS player_stats (
+      player_id TEXT PRIMARY KEY REFERENCES players(id),
+      games_played INTEGER NOT NULL DEFAULT 0,
+      at_bats INTEGER NOT NULL DEFAULT 0,
+      hits INTEGER NOT NULL DEFAULT 0,
+      doubles INTEGER NOT NULL DEFAULT 0,
+      triples INTEGER NOT NULL DEFAULT 0,
+      home_runs INTEGER NOT NULL DEFAULT 0,
+      rbi INTEGER NOT NULL DEFAULT 0,
+      walks INTEGER NOT NULL DEFAULT 0,
+      strikeouts INTEGER NOT NULL DEFAULT 0,
+      outs_recorded INTEGER NOT NULL DEFAULT 0,
+      runs_allowed INTEGER NOT NULL DEFAULT 0,
+      strikeouts_pitched INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS team_season_record (
+      team_id TEXT PRIMARY KEY REFERENCES teams(id),
+      wins INTEGER NOT NULL DEFAULT 0,
+      losses INTEGER NOT NULL DEFAULT 0
+    );
   `);
 }

@@ -137,3 +137,43 @@ export function getGameLog(gameId: string): GameLogRow[] {
     'SELECT * FROM game_log WHERE game_id = ? ORDER BY id ASC'
   ).all(gameId) as GameLogRow[];
 }
+
+export interface CompletedGameRow {
+  gameId: string;
+  playedAt: string;
+  homeTeamId: string;
+  homeTeamName: string;
+  homeTeamAbbreviation: string;
+  homeTeamPrimaryColor: string;
+  awayTeamId: string;
+  awayTeamName: string;
+  awayTeamAbbreviation: string;
+  awayTeamPrimaryColor: string;
+  homeScore: number;
+  awayScore: number;
+}
+
+export function getCompletedGames(): CompletedGameRow[] {
+  return db.prepare(`
+    SELECT
+      g.id            AS gameId,
+      g.created_at    AS playedAt,
+      ht.id           AS homeTeamId,
+      ht.name         AS homeTeamName,
+      ht.abbreviation AS homeTeamAbbreviation,
+      ht.primary_color AS homeTeamPrimaryColor,
+      at2.id           AS awayTeamId,
+      at2.name         AS awayTeamName,
+      at2.abbreviation AS awayTeamAbbreviation,
+      at2.primary_color AS awayTeamPrimaryColor,
+      COALESCE(SUM(CASE WHEN s.is_top = 0 THEN s.runs ELSE 0 END), 0) AS homeScore,
+      COALESCE(SUM(CASE WHEN s.is_top = 1 THEN s.runs ELSE 0 END), 0) AS awayScore
+    FROM games g
+    JOIN teams ht  ON ht.id  = g.home_team_id
+    JOIN teams at2 ON at2.id = g.away_team_id
+    LEFT JOIN inning_scores s ON s.game_id = g.id
+    WHERE g.phase = 'complete'
+    GROUP BY g.id
+    ORDER BY g.created_at DESC
+  `).all() as CompletedGameRow[];
+}

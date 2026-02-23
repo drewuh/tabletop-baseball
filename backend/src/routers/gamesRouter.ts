@@ -8,6 +8,7 @@ import {
   addLogEntry,
   getInningScores,
   getGameLog,
+  getCompletedGames,
 } from '../models/game';
 import {
   getTeamById,
@@ -16,8 +17,38 @@ import {
   getPlayerById,
 } from '../models/team';
 import { resolveAtBat, BaseRunners } from '../services/gameEngine';
+import {
+  recordBatterAtBat,
+  recordPitcherAtBat,
+  recordGamesPlayed,
+  recordGameResult,
+} from '../models/stats';
 
 export const gamesRouter = Router();
+
+// GET /api/games — list of completed games (history)
+gamesRouter.get('/', (_req: Request, res: Response) => {
+  const games = getCompletedGames();
+  const result = games.map(g => ({
+    gameId: g.gameId,
+    playedAt: g.playedAt,
+    homeTeam: {
+      id: g.homeTeamId,
+      name: g.homeTeamName,
+      abbreviation: g.homeTeamAbbreviation,
+      primaryColor: g.homeTeamPrimaryColor,
+    },
+    awayTeam: {
+      id: g.awayTeamId,
+      name: g.awayTeamName,
+      abbreviation: g.awayTeamAbbreviation,
+      primaryColor: g.awayTeamPrimaryColor,
+    },
+    homeScore: g.homeScore,
+    awayScore: g.awayScore,
+  }));
+  res.json(result);
+});
 
 // POST /api/games — create a new game
 gamesRouter.post('/', (req: Request, res: Response) => {
@@ -149,6 +180,20 @@ gamesRouter.post('/:id/atbat', (req: Request, res: Response) => {
   // Update batter index
   const newBatterIndex = (batterIndex + 1) % lineup.length;
 
+  // Record per-at-bat stats
+  recordBatterAtBat(batter.id, {
+    isHit:       outcome.isHit,
+    resultType:  outcome.play.type,
+    runsScored:  outcome.runsScored,
+    isWalk:      outcome.play.type === 'WALK',
+    isStrikeout: outcome.play.type === 'STRIKEOUT',
+  });
+  recordPitcherAtBat(pitcher.id, {
+    outsRecorded: outcome.outsRecorded,
+    runsAllowed:  outcome.runsScored,
+    isStrikeout:  outcome.play.type === 'STRIKEOUT',
+  });
+
   // Update inning score
   if (outcome.runsScored > 0 || outcome.isHit) {
     upsertInningScore(
@@ -188,8 +233,6 @@ gamesRouter.post('/:id/atbat', (req: Request, res: Response) => {
   // Half-inning over
   if (newOuts >= 3) {
     // Guarantee a row exists for this half-inning even if no runs scored and no hits occurred.
-    // Without this, a 3-up 3-down half-inning has no inning_scores row, and the scoreboard
-    // cannot distinguish "not yet played" (null) from "played, zero runs" (0).
     upsertInningScore(game.id, game.current_inning, isTop, 0, 0);
 
     newOuts = 0;
@@ -214,6 +257,24 @@ gamesRouter.post('/:id/atbat', (req: Request, res: Response) => {
     if (gameOver) {
       phase = 'complete';
       addLogEntry(game.id, game.current_inning, isTop, 'info', 'Game over.');
+
+      // Record games_played for all players who appeared
+      const homeLineup = getLineup(game.home_team_id);
+      const awayLineup = getLineup(game.away_team_id);
+      const homePitcherPlayer = getPlayerById(game.home_pitcher_id);
+      const awayPitcherPlayer = getPlayerById(game.away_pitcher_id);
+      const allPlayerIds = [
+        ...homeLineup.map(p => p.id),
+        ...awayLineup.map(p => p.id),
+        ...(homePitcherPlayer ? [homePitcherPlayer.id] : []),
+        ...(awayPitcherPlayer ? [awayPitcherPlayer.id] : []),
+      ];
+      recordGamesPlayed(allPlayerIds);
+
+      // Record W-L record
+      const winningTeamId = homeRuns > awayRuns ? game.home_team_id : game.away_team_id;
+      const losingTeamId  = homeRuns > awayRuns ? game.away_team_id : game.home_team_id;
+      recordGameResult(winningTeamId, losingTeamId);
     } else {
       const label = newIsTop
         ? `--- Top of the ${newInning}${ordinal(newInning)} ---`
@@ -233,6 +294,9 @@ gamesRouter.post('/:id/atbat', (req: Request, res: Response) => {
       : { homeBatterIndex: newBatterIndex }),
     phase,
   });
+
+  // Suppress unused variable warning — fieldingTeamId used only for context
+  void fieldingTeamId;
 
   res.json({
     roll: outcome.roll,

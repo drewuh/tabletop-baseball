@@ -38,6 +38,9 @@ export function TeamCard({ team, isSelected, onSelect }: TeamCardProps) {
       </span>
       <div className="font-bold text-lg text-zinc-100 leading-tight">{team.city}</div>
       <div className="text-zinc-400 text-sm mt-0.5">{team.name}</div>
+      <div className="text-zinc-400 text-sm mt-2">
+        {(team.wins ?? 0)}–{(team.losses ?? 0)}
+      </div>
     </button>
   );
 }

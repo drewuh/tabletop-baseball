@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { GameState, InningScore } from '../types/game';
 import { ResultBanner } from '../components/GameResult/ResultBanner';
 import { Scoreboard } from '../components/Scoreboard/Scoreboard';
+import { PlayByPlayPanel } from '../components/PlayByPlay/PlayByPlayPanel';
 import { useTeamTheme } from '../hooks/useTeamTheme';
 
 export default function GameResultPage() {
@@ -24,7 +25,7 @@ export default function GameResultPage() {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+      <div className="flex-1 flex items-center justify-center text-zinc-400">
         Loading…
       </div>
     );
@@ -39,7 +40,7 @@ export default function GameResultPage() {
   const playerWon = playerRuns > cpuRuns;
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-8 px-8 text-zinc-100">
+    <div className="flex-1 flex flex-col items-center px-8 py-8 text-zinc-100">
       <div className="w-full max-w-2xl flex flex-col gap-6">
         <ResultBanner
           playerTeam={gameState.homeTeam}
@@ -59,6 +60,7 @@ export default function GameResultPage() {
           awayTheme={awayTheme}
           phase="complete"
         />
+        <PlayByPlayPanel entries={gameState.log} isLive={false} />
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => navigate('/')}
@@ -67,10 +69,10 @@ export default function GameResultPage() {
             Play Again
           </button>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/history')}
             className="px-6 py-3 rounded font-bold text-sm tracking-widest uppercase border border-zinc-600 text-zinc-300 hover:border-zinc-400 cursor-pointer"
           >
-            Home
+            Game History
           </button>
         </div>
       </div>
