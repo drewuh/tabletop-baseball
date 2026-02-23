@@ -142,7 +142,7 @@ Before writing any code:
 ## Session Status
 
 **Current branch:** `feature/phase-2-visual-polish`
-**Last updated:** 2026-02-22
+**Last updated:** 2026-02-22 (evening)
 
 ### Phase 2 — Visual Polish
 
@@ -155,6 +155,7 @@ Before writing any code:
 - **Team color theming** — `teamThemes.ts` + `useTeamTheme` hook, wired throughout `GamePage` (scoreboard, diamond, player cards, dice)
 - **TeamSelectPage** — `TeamCard` shows per-team color identity (badge, border tint, selected ring); `ConfirmTeamButton` adopts selected team's `primaryHex`; page title polished with eyebrow label + separator
 
+- **GameResultPage** — `ResultBanner` uses `playerTheme.primaryHex` for win (solid) and loss (60% overlay on `bg-red-950`); `Scoreboard` receives `homeTheme`/`awayTheme` and `phase="complete"` activating the FINAL label
+
 #### Remaining
-- **GameResultPage** — `ResultBanner` uses generic green/red backgrounds; team themes are not passed to `Scoreboard` on the result screen
 - **Theme coverage** — only 4 entries in `teamThemes.ts`; verify IDs match DB team IDs exactly
