@@ -136,3 +136,25 @@ Before writing any code:
 2. Invoke the `project-manager` agent to produce a phased feature roadmap
 3. Invoke the `ux-designer` agent to produce a component map and visual spec
 4. Confirm both artifacts with me before touching any code
+
+---
+
+## Session Status
+
+**Current branch:** `feature/phase-2-visual-polish`
+**Last updated:** 2026-02-22
+
+### Phase 2 — Visual Polish
+
+#### Done
+- **Animated 3D dice** — `Die.tsx` + `dice.css`: 3 roll variants (A/B/C), randomized duration, spring-settle bounce, team accent border on landed face
+- **D6/D20 cube unification** — both dice use the identical `.dice-cube` CSS shape; D20 is identified by its label only
+- **Player cards at at-bat** — `PlayerCard.tsx`: pitcher and batter cards side-by-side, active row highlighted, team-color header tint
+- **Stadium scoreboard** — `Scoreboard.tsx`: inning-by-inning grid, R/H/E totals, LIVE pulse indicator, FINAL state, team accent colors per row
+- **Baseball diamond** — `DiamondView.tsx`: occupied bases pulse in team accent color, outs indicator
+- **Team color theming** — `teamThemes.ts` + `useTeamTheme` hook, wired throughout `GamePage` (scoreboard, diamond, player cards, dice)
+
+#### Remaining
+- **TeamSelectPage** — `TeamCard` uses hardcoded amber; no per-team color or visual identity on the selection screen
+- **GameResultPage** — `ResultBanner` uses generic green/red backgrounds; team themes are not passed to `Scoreboard` on the result screen
+- **Theme coverage** — only 4 entries in `teamThemes.ts`; verify IDs match DB team IDs exactly
