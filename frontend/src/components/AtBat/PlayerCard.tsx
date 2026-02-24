@@ -30,7 +30,7 @@ export function PlayerCard({ card, activeCol, activeRow, isActiveDeck, theme }: 
 
   return (
     <div
-      className="w-56 bg-zinc-900 border-2 rounded-xl overflow-hidden transition-all duration-200"
+      className="w-full max-w-56 sm:w-56 bg-zinc-900 border-2 rounded-xl overflow-hidden transition-all duration-200"
       style={{ borderColor }}
     >
       {/* Header */}

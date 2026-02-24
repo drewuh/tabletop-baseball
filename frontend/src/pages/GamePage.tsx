@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { useTeamTheme } from '../hooks/useTeamTheme';
@@ -35,6 +36,8 @@ export default function GamePage() {
       </div>
     );
   }
+
+  const [mobilePanel, setMobilePanel] = useState<'lineup' | 'log'>('lineup');
 
   const { homeTeam, awayTeam, homeLineup, awayLineup, homeBatterIndex, awayBatterIndex } = gameState;
   const isTopInning = gameState.isTopInning;
@@ -84,8 +87,8 @@ export default function GamePage() {
 
       {/* Main layout */}
       <div className="flex flex-1 gap-4 px-4 py-4 min-h-0">
-        {/* Away lineup */}
-        <div className="w-48 shrink-0">
+        {/* Away lineup — hidden on mobile */}
+        <div className="hidden lg:block w-48 shrink-0">
           <LineupPanel
             team={awayTeam}
             lineup={awayLineup}
@@ -95,7 +98,7 @@ export default function GamePage() {
         </div>
 
         {/* Center: diamond + at-bat */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4 min-w-0">
           <DiamondView
             baseRunners={gameState.baseRunners}
             outs={gameState.outs}
@@ -115,8 +118,59 @@ export default function GamePage() {
               accentHex={batterTheme.accentHex}
             />
           )}
-          {/* Play-by-play on smaller screens (below xl) */}
-          <div className="xl:hidden">
+
+          {/* Mobile toggle buttons */}
+          <div className="lg:hidden flex gap-2">
+            <button
+              onClick={() => setMobilePanel('lineup')}
+              className={`flex-1 py-2.5 text-sm font-semibold rounded transition-colors cursor-pointer ${
+                mobilePanel === 'lineup'
+                  ? 'bg-zinc-700 text-zinc-100'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              Lineup
+            </button>
+            <button
+              onClick={() => setMobilePanel('log')}
+              className={`flex-1 py-2.5 text-sm font-semibold rounded transition-colors cursor-pointer ${
+                mobilePanel === 'log'
+                  ? 'bg-zinc-700 text-zinc-100'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              Log
+            </button>
+          </div>
+
+          {/* Mobile panels */}
+          <div className="lg:hidden">
+            {mobilePanel === 'lineup' ? (
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <LineupPanel
+                    team={awayTeam}
+                    lineup={awayLineup}
+                    currentBatterIndex={awayBatterIndex}
+                    side="away"
+                  />
+                </div>
+                <div className="flex-1">
+                  <LineupPanel
+                    team={homeTeam}
+                    lineup={homeLineup}
+                    currentBatterIndex={homeBatterIndex}
+                    side="home"
+                  />
+                </div>
+              </div>
+            ) : (
+              <PlayByPlayPanel entries={gameState.log} isLive />
+            )}
+          </div>
+
+          {/* Play-by-play on medium screens (below xl, above lg) */}
+          <div className="hidden lg:block xl:hidden">
             <PlayByPlayPanel entries={gameState.log} isLive />
           </div>
         </div>
@@ -126,8 +180,8 @@ export default function GamePage() {
           <PlayByPlayPanel entries={gameState.log} isLive />
         </div>
 
-        {/* Home lineup */}
-        <div className="w-48 shrink-0">
+        {/* Home lineup — hidden on mobile */}
+        <div className="hidden lg:block w-48 shrink-0">
           <LineupPanel
             team={homeTeam}
             lineup={homeLineup}

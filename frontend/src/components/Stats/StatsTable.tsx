@@ -174,7 +174,7 @@ export function StatsTable({
   onPitchingSort,
 }: StatsTableProps) {
   return (
-    <div className="bg-zinc-800 rounded-lg overflow-hidden">
+    <div className="bg-zinc-800 rounded-lg overflow-hidden overflow-x-auto">
       {mode === 'batting' ? (
         <BattingTable
           rows={battingRows}

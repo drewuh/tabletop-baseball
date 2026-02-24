@@ -71,7 +71,7 @@ export function AtBatPanel({
 
       {/* Player cards side by side */}
       {batterCard && pitcherCard && (
-        <div className="flex gap-3 justify-center flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center sm:items-start flex-wrap">
           <PlayerCard
             card={batterCard}
             activeCol={activeCol}
