@@ -141,8 +141,8 @@ Before writing any code:
 
 ## Session Status
 
-**Current branch:** `feature/phase-2-visual-polish`
-**Last updated:** 2026-02-22 (night)
+**Current branch:** `main` (Phase 4 branch TBD)
+**Last updated:** 2026-02-24
 
 ### Phase 2 — Visual Polish
 
@@ -179,8 +179,63 @@ Theme coverage verified: all 4 `teamThemes.ts` keys match DB team IDs exactly.
 - **PlayByPlayPanel** — live auto-scroll in `GamePage` (xl: third column, smaller: below AtBat); static full log on `GameResultPage`
 - **GameResultPage** — "Game History" button replaces generic "Home"
 
-#### Phase 3 gate
-- [ ] Play a complete game and verify player_stats rows populated correctly
-- [ ] Verify /stats page shows correct BA math after game
-- [ ] Verify /history lists the game and links to its result page
-- [ ] `npm run build` passes in both backend/ and frontend/ with zero errors
+#### Phase 3 gate — CLEARED
+Gate verified 2026-02-24: player_stats correct (20 rows, 54 outs), BA math validated, W-L accurate, tsc clean on both packages.
+
+---
+
+### Phase 4 — Reach & Authorship
+
+**Theme:** Responsive mobile layout brings the game to any device; a full CRUD editor with AI roster generation lets users build custom teams.
+
+#### F1 — Mobile Responsive Layout (P0)
+- Minimum viewport: 375px. No horizontal overflow on any page.
+- Desktop layout preserved exactly — zero regression at 1280px and 1920px.
+- GamePage: lineup panels collapse on mobile; diamond/at-bat/scoreboard stack vertically.
+- Scoreboard: horizontal scroll on mobile.
+- NavBar: hamburger or icon-only collapse on narrow viewports.
+- Stats/History tables: horizontal scroll on mobile.
+- Minimum 44×44px touch targets on all controls.
+- Tailwind breakpoint utilities only — no new CSS files.
+
+#### F2 — Team & Player Editor CRUD (P0)
+- Routes: `/editor`, `/editor/teams/new`, `/editor/teams/:id`, `/editor/players/:id`
+- Full team CRUD; auto-generated `team-{slug}` IDs; unique 3-char abbreviation; hex color validation.
+- Delete blocked (409) if team has games in DB.
+- Full player CRUD; same schema as seeds.
+- Team requires 9 batters (C 1B 2B 3B SS LF CF RF DH) + 1 SP before selectable in TeamSelectPage.
+- Player card editor: 6×6 dropdown grid, all 36 cells required per save.
+- NavBar gains "Editor" link.
+- `teamThemes.ts` is no longer sole source of truth — custom teams resolve colors from DB.
+
+#### F3 — AI-Assisted Roster Generation (P1)
+
+**Architecture decision (PERMANENT):** F3 is implemented with a **mock response** while job searching for cost control. The architecture is identical to a live implementation — swapping in a real Anthropic API call requires changing one constant and removing the mock branch. No other code changes needed.
+
+**Answered design decisions (do not re-litigate without explicit user instruction):**
+
+| # | Decision | Answer |
+|---|---|---|
+| 1 | Model | `claude-haiku-4-5-20251001` — stubbed with mock during development |
+| 2 | Prompt structure | Model picks archetype per batter (power/contact/balanced/speedster); card reflects that archetype. Mock response mirrors this structure. |
+| 3 | Team identity | City and team name influence generated player names and roster feel. Include in prompt even while stubbed. |
+| 4 | Output format | Structured output / tool use — no free-form JSON parsing. Mock conforms to the same schema the real API would return. |
+| 5 | Player IDs | Seed convention: `{abbrev}-b{n}` / `{abbrev}-p{n}` |
+| 6 | Stat bounds | Batters: max 3 HR, max 4 K, min 8 total outs. Pitchers: min 12 K, max 2 HR, min 18 total outs. Mock must pass these bounds. |
+| 7 | Partial failure | Full rollback on any failure — no partial rosters written. |
+| 8 | MLB name filtering | Prompt-only best effort — no hard validation block. |
+| 9 | Prompt location | `/backend/config/generationPrompt.ts` — editable without redeploy. |
+| 10 | Rate limiting / cost logging | Log token usage to SQLite. No per-session hard limit. While stubbed, log mock token estimates so logging infrastructure is in place. |
+
+**Route:** `POST /api/teams/:id/generate-roster` — backend only, API key never reaches browser.
+**Atomic writes:** all-or-nothing transaction; structured error `{ error: string; code: 'API_ERROR' | 'VALIDATION_ERROR' | 'PARSE_ERROR' }` on failure.
+**Graceful degradation:** if API key absent (or mock flag set), feature is disabled with a clear UI message — not a crash.
+
+#### Phase 4 gate
+- [ ] All pages render at 375px with no overflow — verified in devtools and emulator
+- [ ] Desktop regression-free at 1280px and 1920px
+- [ ] CRUD endpoints have integration tests (create, read, update, delete, blocked-delete)
+- [ ] Editor enforces 9-batter + 1-SP completeness before team is selectable
+- [ ] Custom team colors resolve from DB (not `teamThemes.ts`)
+- [ ] Transaction rollback verified: failed generation writes nothing to DB
+- [ ] `npm run build` passes in both packages with zero errors
