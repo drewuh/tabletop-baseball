@@ -141,7 +141,7 @@ Before writing any code:
 
 ## Session Status
 
-**Current branch:** `main` (Phase 4 branch TBD)
+**Current branch:** `feature/phase-4-reach-authorship`
 **Last updated:** 2026-02-24
 
 ### Phase 2 — Visual Polish
@@ -231,10 +231,19 @@ Gate verified 2026-02-24: player_stats correct (20 rows, 54 outs), BA math valid
 **Atomic writes:** all-or-nothing transaction; structured error `{ error: string; code: 'API_ERROR' | 'VALIDATION_ERROR' | 'PARSE_ERROR' }` on failure.
 **Graceful degradation:** if API key absent (or mock flag set), feature is disabled with a clear UI message — not a crash.
 
+#### Phase 4 — Implementation Status
+
+**Done (2026-02-24):**
+- **F1 Mobile** — NavBar hamburger+drawer (sm:hidden), TeamGrid grid-cols-1 sm:grid-cols-2, GamePage lineup hidden lg:block + Lineup/Log mobile toggles, AtBatPanel flex-col sm:flex-row, PlayerCard w-full max-w-56 sm:w-56, StatsTable overflow-x-auto
+- **F2 Editor CRUD** — full backend: POST/PUT/DELETE /api/teams, GET/:id/players, POST /bulk-players, GET/POST/PUT/DELETE /api/players/:id; frontend: 4 pages, 16 components (incl. CardEditor with mobile bottom sheet), 6 hooks
+- **F3 AI Generation (mock)** — generationPrompt.ts config, mock endpoint (USE_MOCK=true), api_usage logging, useRosterGeneration hook, GeneratedRosterReview+SimulatedBadge
+- **teamThemes fallback** — useTeamTheme accepts optional primary_color params; custom teams resolve from DB
+- tsc clean on both packages
+
 #### Phase 4 gate
 - [ ] All pages render at 375px with no overflow — verified in devtools and emulator
 - [ ] Desktop regression-free at 1280px and 1920px
-- [ ] CRUD endpoints have integration tests (create, read, update, delete, blocked-delete)
+- [ ] CRUD endpoints verified: create, read, update, delete, blocked-delete (409)
 - [ ] Editor enforces 9-batter + 1-SP completeness before team is selectable
 - [ ] Custom team colors resolve from DB (not `teamThemes.ts`)
 - [ ] Transaction rollback verified: failed generation writes nothing to DB
