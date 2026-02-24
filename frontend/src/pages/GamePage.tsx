@@ -19,6 +19,8 @@ export default function GamePage() {
   const { homeTheme, awayTheme } = useTeamTheme(
     gameState?.homeTeam.id ?? '',
     gameState?.awayTeam.id ?? '',
+    gameState?.homeTeam.primary_color,
+    gameState?.awayTeam.primary_color,
   );
 
   if (isLoading) {
