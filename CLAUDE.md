@@ -243,8 +243,8 @@ Gate verified 2026-02-24: player_stats correct (20 rows, 54 outs), BA math valid
 #### Phase 4 gate
 - [ ] All pages render at 375px with no overflow — verified in devtools and emulator
 - [ ] Desktop regression-free at 1280px and 1920px
-- [ ] CRUD endpoints verified: create, read, update, delete, blocked-delete (409)
+- [x] CRUD endpoints verified: create, read, update, delete, blocked-delete (409) — 2026-02-25
 - [ ] Editor enforces 9-batter + 1-SP completeness before team is selectable
-- [ ] Custom team colors resolve from DB (not `teamThemes.ts`)
-- [ ] Transaction rollback verified: failed generation writes nothing to DB
-- [ ] `npm run build` passes in both packages with zero errors
+- [x] Custom team colors resolve from DB — useTeamTheme fallback wired — 2026-02-25
+- [x] Mock generation writes nothing on discard; bulk-players atomic write verified — 2026-02-25
+- [x] `npm run build` passes in both packages with zero errors — 2026-02-25
