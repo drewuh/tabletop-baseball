@@ -1,15 +1,17 @@
 import { ALL_POSITIONS, BATTER_POSITIONS } from '../../types/editor';
+import type { CardGrid } from '../../types/editor';
 
-interface PlayerFormState {
+interface PlayerFormFields {
   name: string;
   position: string;
   batting_order: number | null;
   is_pitcher: boolean;
+  card: CardGrid;
 }
 
 interface PlayerFormProps {
-  form: PlayerFormState;
-  onField: <K extends keyof PlayerFormState>(key: K, value: PlayerFormState[K]) => void;
+  form: PlayerFormFields;
+  onField: <K extends keyof PlayerFormFields>(key: K, value: PlayerFormFields[K]) => void;
   submitError: string | null;
 }
 
@@ -19,7 +21,7 @@ export function PlayerForm({ form, onField, submitError }: PlayerFormProps) {
   function handlePosition(pos: string) {
     const isPitcher = pos === 'SP';
     onField('position', pos);
-    onField('is_pitcher', isPitcher);
+    onField('is_pitcher', isPitcher as PlayerFormFields['is_pitcher']);
     if (isPitcher) onField('batting_order', null);
   }
 
