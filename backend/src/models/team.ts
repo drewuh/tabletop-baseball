@@ -193,18 +193,41 @@ export function deletePlayer(id: string): void {
 
 export function bulkCreatePlayers(teamId: string, players: PlayerCreateInput[]): void {
   const existingIds = (db.prepare('SELECT id FROM players WHERE team_id = ?').all(teamId) as { id: string }[]).map(r => r.id);
+  const newIdSet = new Set(players.map(p => p.id));
+
   db.transaction(() => {
+    // Step 1: wipe card rows for all existing players — safe, nothing FK-refs card tables.
     for (const pid of existingIds) {
       db.prepare('DELETE FROM batter_cards WHERE player_id = ?').run(pid);
       db.prepare('DELETE FROM pitcher_cards WHERE player_id = ?').run(pid);
       db.prepare('DELETE FROM player_stats WHERE player_id = ?').run(pid);
     }
-    db.prepare('DELETE FROM players WHERE team_id = ?').run(teamId);
+
+    // Step 2: drop player rows that are NOT in the new roster.
+    // Skip any that are FK-referenced by games (home_pitcher_id / away_pitcher_id).
+    for (const pid of existingIds) {
+      if (!newIdSet.has(pid)) {
+        try {
+          db.prepare('DELETE FROM players WHERE id = ?').run(pid);
+        } catch {
+          // FK constraint — player is referenced by a game row; leave the player row intact.
+        }
+      }
+    }
+
+    // Step 3: upsert each player in the new roster and write fresh card rows.
     for (const p of players) {
-      db.prepare(
-        `INSERT INTO players (id, team_id, name, position, batting_order, is_pitcher)
-         VALUES (?, ?, ?, ?, ?, ?)`
-      ).run(p.id, teamId, p.name, p.position, p.batting_order, p.is_pitcher ? 1 : 0);
+      if (existingIds.includes(p.id)) {
+        // Player row exists — update metadata in-place to avoid FK violation on delete.
+        db.prepare(
+          `UPDATE players SET name=?, position=?, batting_order=?, is_pitcher=? WHERE id=?`
+        ).run(p.name, p.position, p.batting_order, p.is_pitcher ? 1 : 0, p.id);
+      } else {
+        db.prepare(
+          `INSERT INTO players (id, team_id, name, position, batting_order, is_pitcher)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        ).run(p.id, teamId, p.name, p.position, p.batting_order, p.is_pitcher ? 1 : 0);
+      }
       const table = p.is_pitcher ? 'pitcher_cards' : 'batter_cards';
       const insertCell = db.prepare(`INSERT INTO ${table} (player_id, col, row, result) VALUES (?, ?, ?, ?)`);
       for (const cell of p.card) {
