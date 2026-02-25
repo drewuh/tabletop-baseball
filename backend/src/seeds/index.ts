@@ -4,7 +4,7 @@ import { teams } from './teams';
 import { players } from './players';
 import { buildBatterCard, buildPitcherCard } from './cards';
 
-function seed(): void {
+export function seed(): void {
   initSchema();
 
   const insertTeam = db.prepare(`
@@ -62,4 +62,6 @@ function seed(): void {
   console.log('Seed complete.');
 }
 
-seed();
+if (require.main === module) {
+  seed();
+}
