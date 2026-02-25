@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { GeneratedPlayer } from '../../types/editor';
 import { SimulatedBadge } from './SimulatedBadge';
 
@@ -8,10 +7,10 @@ interface GeneratedRosterReviewProps {
   players: GeneratedPlayer[];
   isSimulated: boolean;
   onDiscard: () => void;
+  onAccept: () => void;
 }
 
-export function GeneratedRosterReview({ teamId, players, isSimulated, onDiscard }: GeneratedRosterReviewProps) {
-  const navigate = useNavigate();
+export function GeneratedRosterReview({ teamId, players, isSimulated, onDiscard, onAccept }: GeneratedRosterReviewProps) {
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +28,7 @@ export function GeneratedRosterReview({ teamId, players, isSimulated, onDiscard 
         setError(body.error ?? 'Failed to save roster.');
         return;
       }
-      navigate(`/editor/teams/${teamId}`);
+      onAccept();
     } catch {
       setError('Network error. Please try again.');
     } finally {

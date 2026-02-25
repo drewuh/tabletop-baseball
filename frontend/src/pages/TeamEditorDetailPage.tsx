@@ -98,7 +98,8 @@ export default function TeamEditorDetailPage() {
             teamId={teamId}
             players={generatedRoster}
             isSimulated={isSimulated}
-            onDiscard={() => { resetGen(); handleRosterAccepted(); }}
+            onDiscard={resetGen}
+            onAccept={handleRosterAccepted}
           />
         </div>
       )}
