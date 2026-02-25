@@ -3,4 +3,3 @@ frontend/
 backend/node_modules
 backend/dist
 backend/db
-backend/src
