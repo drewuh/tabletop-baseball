@@ -248,3 +248,88 @@ Gate verified 2026-02-24: player_stats correct (20 rows, 54 outs), BA math valid
 - [x] Custom team colors resolve from DB — useTeamTheme fallback wired — 2026-02-25
 - [x] Mock generation writes nothing on discard; bulk-players atomic write verified — 2026-02-25
 - [x] `npm run build` passes in both packages with zero errors — 2026-02-25
+
+---
+
+## Deployment
+
+### Stack
+- **Frontend:** Vercel (free tier) — auto-deploys from `main`
+- **Backend:** Fly.io (free tier) — Node.js + SQLite on a persistent volume
+- **Database:** SQLite at `/data/tabletop.db` on a Fly persistent volume named `tabletop_data`
+
+### First-time setup
+
+#### 1. Fly.io backend
+
+```bash
+# Install CLI and authenticate
+brew install flyctl && fly auth login
+
+# Launch app (generates app name — use "tabletop-baseball" if available)
+fly launch --no-deploy
+
+# Create persistent volume (3GB free tier)
+fly volumes create tabletop_data --region iad --size 1
+
+# Set CORS secret (fill in actual Vercel domain after step 2)
+fly secrets set FRONTEND_URL=https://tabletop-baseball.vercel.app
+
+# Deploy
+fly deploy
+```
+
+The first deploy will find an empty DB, auto-seed the 4 default teams and rosters, and
+serve on `https://tabletop-baseball.fly.dev`.
+
+#### 2. Vercel frontend
+
+```bash
+# Install CLI and authenticate
+npm i -g vercel && vercel login
+
+# Deploy (Vercel reads vercel.json at repo root)
+vercel --prod
+```
+
+Vercel detects `vercel.json`, runs `cd frontend && npm install && npm run build`,
+and serves `frontend/dist/`. Note the assigned domain (e.g. `tabletop-baseball.vercel.app`).
+
+#### 3. Wire up CORS
+
+After both are deployed and you know the Vercel domain:
+
+```bash
+fly secrets set FRONTEND_URL=https://your-actual-domain.vercel.app
+fly deploy
+```
+
+### Redeployment
+
+```bash
+# Backend (after any backend code change)
+fly deploy
+
+# Frontend (after any frontend code change)
+vercel --prod
+# or just push to main — Vercel auto-deploys from main if connected via GitHub
+```
+
+### Connecting Vercel to GitHub (recommended)
+
+In the Vercel dashboard → Import Git Repository → select `tabletop-baseball` →
+Vercel will auto-deploy on every push to `main`.
+
+### Debugging
+
+```bash
+fly logs              # live backend logs
+fly ssh console       # shell into running VM
+fly status            # machine health
+```
+
+### Volume notes
+- SQLite lives at `/data/tabletop.db` on the Fly volume `tabletop_data`
+- The volume persists across deploys and restarts
+- On first boot with an empty volume, the app auto-seeds 4 teams
+- To wipe and re-seed: `fly ssh console` → `rm /data/tabletop.db` → restart machine
