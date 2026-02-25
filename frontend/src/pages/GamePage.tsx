@@ -15,6 +15,8 @@ export default function GamePage() {
   const { gameState, rollResult, playResult, isLoading, isRolling, error, rollDice } =
     useGameEngine(gameId ?? '');
 
+  const [mobilePanel, setMobilePanel] = useState<'lineup' | 'log'>('lineup');
+
   // Always call hooks before any early returns
   const { homeTheme, awayTheme } = useTeamTheme(
     gameState?.homeTeam.id ?? '',
@@ -38,8 +40,6 @@ export default function GamePage() {
       </div>
     );
   }
-
-  const [mobilePanel, setMobilePanel] = useState<'lineup' | 'log'>('lineup');
 
   const { homeTeam, awayTeam, homeLineup, awayLineup, homeBatterIndex, awayBatterIndex } = gameState;
   const isTopInning = gameState.isTopInning;
